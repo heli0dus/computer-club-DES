@@ -70,13 +70,13 @@ func main() {
 	var body string
 	for scanner.Scan() {
 
-		re, err := regexp.Compile("^([0-1][0-9]|2[0-3]):[0-5][0-9] ([13-4] [a-z1-9_-]+|2 [a-z1-9_-]+ [0-9]+)")
+		re, err := regexp.Compile("^([0-1][0-9]|2[0-3]):[0-5][0-9] ([13-4] [a-z1-9_-]+|2 [a-z1-9_-]+ [0-9]+)$")
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		if !re.MatchString(scanner.Text()) {
-			fmt.Print(scanner.Text())
+			fmt.Println(scanner.Text())
 			os.Exit(1)
 		}
 
@@ -111,6 +111,11 @@ func main() {
 
 			if computers[pc-1].isOccupied {
 				result.WriteString(fmt.Sprintf("%02d:%02d 13 PlaceIsBusy\n", hours, minutes))
+				continue
+			}
+
+			if _, ok := clients[user]; !ok {
+				result.WriteString(fmt.Sprintf("%02d:%02d 13 ClientUnknown\n", hours, minutes))
 				continue
 			}
 
