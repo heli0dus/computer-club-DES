@@ -16,7 +16,6 @@ func main() {
 	}
 
 	file, err := os.Open(os.Args[1])
-	//file, err := os.Open("/home/heli0dus")
 	if err != nil {
 		log.Fatal("can't open file", err)
 	}
@@ -77,7 +76,7 @@ func main() {
 
 		if !re.MatchString(scanner.Text()) {
 			fmt.Println(scanner.Text())
-			os.Exit(1)
+			return
 		}
 
 		fmt.Sscanf(scanner.Text(), "%d:%d %d %s", &hours, &minutes, &eventId, &body)
