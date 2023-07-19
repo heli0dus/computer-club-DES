@@ -10,12 +10,8 @@ import (
 	"strings"
 )
 
-func main() {
-	if len(os.Args) == 1 {
-		log.Fatal("Error: no file provided")
-	}
-
-	file, err := os.Open(os.Args[1])
+func ModelComputerClub(inputFile string) string {
+	file, err := os.Open(inputFile)
 	if err != nil {
 		log.Fatal("can't open file", err)
 	}
@@ -27,13 +23,24 @@ func main() {
 	var numtables int
 
 	if scanner.Scan() {
-		fmt.Sscanf(scanner.Text(), "%d", &numtables)
+		n, _ := fmt.Sscanf(scanner.Text(), "%d", &numtables)
+		if n == 0 {
+			return scanner.Text()
+		}
 	} else {
 		log.Fatal("Number of tables not provided")
 	}
 
 	var openingHours, openingMinutes, closingHours, closingMinutes, openingTime, closingTime int
 	if scanner.Scan() {
+		re, err := regexp.Compile("^([0-1][0-9]|2[0-3]):[0-5][0-9] ([0-1][0-9]|2[0-3]):[0-5][0-9]$")
+		if err != nil {
+			log.Fatal(err)
+		}
+		if !re.MatchString(scanner.Text()) {
+			return scanner.Text()
+		}
+
 		fmt.Sscanf(scanner.Text(), "%d:%d %d:%d", &openingHours, &openingMinutes, &closingHours, &closingMinutes)
 		openingTime = openingHours*60 + openingMinutes
 		closingTime = closingHours*60 + closingMinutes
@@ -43,7 +50,10 @@ func main() {
 
 	var cost int
 	if scanner.Scan() {
-		fmt.Sscanf(scanner.Text(), "%d", &cost)
+		n, _ := fmt.Sscanf(scanner.Text(), "%d", &cost)
+		if n == 0 {
+			return scanner.Text()
+		}
 	} else {
 		log.Fatal("failed to scan cost", scanner.Text())
 	}
@@ -75,8 +85,7 @@ func main() {
 		}
 
 		if !re.MatchString(scanner.Text()) {
-			fmt.Println(scanner.Text())
-			return
+			return scanner.Text()
 		}
 
 		fmt.Sscanf(scanner.Text(), "%d:%d %d %s", &hours, &minutes, &eventId, &body)
@@ -183,16 +192,26 @@ func main() {
 			computers[clients[user]-1].Free(closingTime)
 		}
 
-		result.WriteString(fmt.Sprintf("%02d:%02d 11 %s \n", hours, minutes, user))
+		result.WriteString(fmt.Sprintf("%02d:%02d 11 %s \n", closingHours, closingMinutes, user))
 		delete(clients, body)
 	}
 
 	result.WriteString(fmt.Sprintf("%02d:%02d\n", closingHours, closingMinutes))
-	fmt.Print(result.String())
 
 	for ind, pc := range computers {
 		hours := pc.totaltime / 60
 		minutes := pc.totaltime % 60
-		fmt.Printf("%d %d %02d:%02d\n", ind+1, pc.revenue, hours, minutes)
+		result.WriteString(fmt.Sprintf("%d %d %02d:%02d\n", ind+1, pc.revenue, hours, minutes))
 	}
+	return result.String()
+}
+
+func main() {
+	if len(os.Args) == 1 {
+		log.Fatal("Error: no file provided")
+	}
+
+	result := ModelComputerClub(os.Args[1])
+
+	fmt.Print(result)
 }
